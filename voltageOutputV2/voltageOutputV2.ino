@@ -8,22 +8,32 @@ By: Kyra Stovicek
 #include <avr/interrupt.h>
 #include <Arduino.h>
 #include <math.h>
+
 // User-defined settings
 
 const int analogInPin = A6;  // Analog input pin that the potentiometer is attached to
 int voltage_read;
 float outputValue;
 
+IntervalTimer myTimer;
 
 void setup() {
   // Configure Timer1 for periodic interrupts
-  Serial.begin(115200);
+  // Serial.begin(115200);
+  myTimer.begin(sampling, 100);
 
 }
 
-void loop() {
-  voltage_read = analogRead(analogInPin);
+// void loop() {
+//   voltage_read = analogRead(analogInPin);
   
+//   outputValue = map(voltage_read, 0, 1023, 0, 3300);
+//   Serial.println(outputValue); 
+// }
+
+void sampling() {
+  voltage_read =  analogRead(analogInPin);
   outputValue = map(voltage_read, 0, 1023, 0, 3300);
-  Serial.println(outputValue); 
+
+  // outputValue =  (3300.0/1024.0)*voltage_read;
 }
