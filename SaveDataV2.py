@@ -9,9 +9,11 @@ def collect_data(arduino_call):
 
     arduino_call.write(b'1')
     print("Sent trigger to microcontroller, waiting on instron to start...\n")
+    # arduino_call.write(b'0')
 
     while True:
         line = arduino_call.readline().decode('utf-8').strip()
+        # print(line)
         if line == "GO":
             print("Trigger received\n")
             break
@@ -36,6 +38,7 @@ def collect_data(arduino_call):
             
             if keyboard.is_pressed("space"):
                 arduino_call.write(b'2')
+                print("sending 2\n")
                 break
 
         except KeyboardInterrupt:
@@ -65,6 +68,7 @@ if __name__ == "__main__":
 
         if filename.lower() == " exit":
             print("\nGood Job Collecting Data")
+            arduino.write(b'2')
             break
 
         filename += ".csv"

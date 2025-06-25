@@ -1,3 +1,15 @@
+/* Code to synchronize instron and FSR data collection
+  You can change the sampling rate using the 2nd input in the myTimer.begin function
+    Inputs: 34, Instron read
+            A6, FSR read
+    Outputs:
+            33, Trigger Instron
+            36, Light that Instron info was received
+            37, Light that trigger was sent to Instron
+
+    Written by Kyra Stovicek, kcs8@rice.edu            
+*/
+
 #include <Arduino.h>
 #include <IntervalTimer.h>
 
@@ -17,21 +29,36 @@ void setup() {
   while (!Serial);
   // Serial.println(period);
   pinMode(34, INPUT); // trigger from instron to sync data well
-  myTimer.begin(dataFlag, 100);  // microseconds
   pinMode(33, OUTPUT);   // trigger pin for instron setup
+  trigger = false;
+  pinMode(36,OUTPUT); // got info from instron
+  pinMode(37,OUTPUT); // high low status of trigger pin for instron (Dout)
+  digitalWrite(33,LOW);
+  digitalWrite(37,LOW);
 }
 
 void loop() {
-  if (Serial.read() ==  '1' && trigger == false) {
+  int incomingByte = Serial.read();
+  // Serial.println(incomingByte);
+  if (incomingByte == '1' && trigger == false) {
     digitalWrite(33, HIGH);
+    digitalWrite(37, HIGH);
     delay(1000);
     digitalWrite(33, LOW);
+    digitalWrite(37, LOW);
+    delay(1000);
     if (digitalRead(34) == HIGH && !trigger) {
-      
+      digitalWrite(36, HIGH);
       Serial.println("GO");
+      delay(1000);
       trigger = true;
+      myTimer.begin(dataFlag, 100);  // microseconds
     }
+  } else if (incomingByte == '2' && trigger == true) {
+    trigger = false;
+    digitalWrite(36, LOW);
   }
+
   if (flag) {
     timestamp = micros();
     voltage_read = analogRead(analogInPin);
@@ -41,10 +68,8 @@ void loop() {
     Serial.println(outputValue); 
     flag = false;
   }
-  if (Serial.read() == '2'){
-    trigger = false;
-  }
 }
+
 
 void dataFlag() {
   flag = true;
