@@ -18,8 +18,9 @@ def collect_data(arduino_call):
             
             if line:
                 try:
+                    timestamp = time.perf_counter()
                     voltage = float(line)  # Convert to float
-                    voltageData.append([voltage])  # Store as a list (for CSV writing)
+                    voltageData.append([timestamp, voltage])  # Store as a list (for CSV writing)
                     # print(f"Voltage: {voltage}")  # Display current reading
                 except ValueError:
                     print(f"Invalid data received: {line}")  # Handle non-numeric data
@@ -64,6 +65,7 @@ if __name__ == "__main__":
 
         with open(filename, mode='w', newline='') as file:
             dataWriter = csv.writer(file)
+            dataWriter.writerow(["Time (s)", "Voltage (mV)"])  # Add headers
             dataWriter.writerows(voltageData)
 
 

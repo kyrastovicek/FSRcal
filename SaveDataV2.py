@@ -7,6 +7,17 @@ import keyboard
 def collect_data(arduino_call):
     voltageData = []
 
+    arduino_call.write(b'1')
+    print("Sent trigger to microcontroller, waiting on instron to start...\n")
+    # arduino_call.write(b'0')
+
+    while True:
+        line = arduino_call.readline().decode('utf-8').strip()
+        # print(line)
+        if line == "GO":
+            print("Trigger received\n")
+            break
+
     while True:
         try:
             line = arduino_call.readline().decode('utf-8').strip()
@@ -18,7 +29,7 @@ def collect_data(arduino_call):
                     
                     if 1 <= len(values) <= 2:
                         voltageData.append(values)
-                        print(f"Received: {values}")
+                        # print(f"Received: {values}")
                     else:
                         print(f"Unexpected number of values: {line}")
                         
@@ -26,6 +37,8 @@ def collect_data(arduino_call):
                     print(f"Invalid data received: {line}")
             
             if keyboard.is_pressed("space"):
+                arduino_call.write(b'2')
+                print("sending 2\n")
                 break
 
         except KeyboardInterrupt:
@@ -55,6 +68,7 @@ if __name__ == "__main__":
 
         if filename.lower() == " exit":
             print("\nGood Job Collecting Data")
+            arduino.write(b'2')
             break
 
         filename += ".csv"
