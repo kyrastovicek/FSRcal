@@ -19,44 +19,36 @@ const int analogInPin = A6;  // Analog input pin that the potentiometer is attac
 int voltage_read;
 float outputValue;
 float frequency = 1;
-float period = (1/ frequency)*10e6;
+float period = (1 / frequency) * 10e6;
 unsigned long timestamp;
 bool trigger = false;
 
 
 void setup() {
   Serial.begin(115200);
-  while (!Serial);
   // Serial.println(period);
-  pinMode(34, INPUT); // trigger from instron to sync data well
-  pinMode(33, OUTPUT);   // trigger pin for instron setup
+  pinMode(34, INPUT);   // trigger from instron to sync data well
+  pinMode(33, OUTPUT);  // trigger pin for instron setup
   trigger = false;
-  pinMode(36,OUTPUT); // got info from instron
-  pinMode(37,OUTPUT); // high low status of trigger pin for instron (Dout)
-  digitalWrite(33,LOW);
-  digitalWrite(37,LOW);
+  pinMode(36, OUTPUT);  // got info from instron
+  pinMode(37, OUTPUT);  // high low status of trigger pin for instron (Dout)
+  digitalWrite(33, LOW);
+  digitalWrite(37, LOW);
 }
 
 void loop() {
   int incomingByte = Serial.read();
   // Serial.println(incomingByte);
-  if (incomingByte == '1' && trigger == false) {
-    digitalWrite(33, HIGH);
-    digitalWrite(37, HIGH);
+
+  if (digitalRead(34) == HIGH && !trigger) {
+    digitalWrite(36, HIGH);
+    Serial.println("GO");
     delay(1000);
-    digitalWrite(33, LOW);
-    digitalWrite(37, LOW);
-    delay(1000);
-    if (digitalRead(34) == HIGH && !trigger) {
-      digitalWrite(36, HIGH);
-      Serial.println("GO");
-      delay(1000);
-      trigger = true;
-      myTimer.begin(dataFlag, 100);  // microseconds
-    }
-  } else if (incomingByte == '2' && trigger == true) {
+    trigger = true;
+    myTimer.begin(dataFlag, 100);  // microseconds
+  } else if (digitalRead(34) == LOW && trigger) {
+    flag = false;
     trigger = false;
-    digitalWrite(36, LOW);
   }
 
   if (flag) {
@@ -65,7 +57,7 @@ void loop() {
     outputValue = map(voltage_read, 0, 1023, 0, 3300);
     Serial.print(timestamp);
     Serial.print(",");
-    Serial.println(outputValue); 
+    Serial.println(outputValue);
     flag = false;
   }
 }

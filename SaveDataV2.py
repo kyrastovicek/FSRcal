@@ -7,8 +7,7 @@ import keyboard
 def collect_data(arduino_call):
     voltageData = []
 
-    arduino_call.write(b'1')
-    print("Sent trigger to microcontroller, waiting on instron to start...\n")
+    print("Waiting for Instron...\n")
     # arduino_call.write(b'0')
 
     while True:
@@ -37,8 +36,6 @@ def collect_data(arduino_call):
                     print(f"Invalid data received: {line}")
             
             if keyboard.is_pressed("space"):
-                arduino_call.write(b'2')
-                print("sending 2\n")
                 break
 
         except KeyboardInterrupt:
@@ -68,7 +65,6 @@ if __name__ == "__main__":
 
         if filename.lower() == " exit":
             print("\nGood Job Collecting Data")
-            arduino.write(b'2')
             break
 
         filename += ".csv"
